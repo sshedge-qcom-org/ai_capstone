@@ -9,7 +9,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | --- | --- | --- |
 | 0 | Architecture, data model, API and UX contracts | Complete |
 | 1 | Runnable monorepo, migrations, health and landing page | Complete |
-| 2-10 | Authentication through production hardening | Planned |
+| 2 | Authentication, rotating refresh tokens, role guards | Complete |
+| 3-10 | Dashboard through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -51,4 +52,14 @@ cd ../frontend && npm run build && npm run lint && npm test
 ```
 
 Phase 1: migration, health test, frontend build/lint and landing test pass.
-Next: authentication, rotating refresh sessions and role-based guards.
+Phase 2 adds login/registration, in-memory access tokens, HttpOnly rotating refresh
+cookies, role authorization and user administration APIs. Public registration
+cannot choose a privileged role. Administrators assign an employee's manager.
+
+To create local test users, set `DEMO_PASSWORD` to the requested local demo password
+and run `cd backend && ../.venv/bin/python -m app.seed`. Accounts:
+`admin@company.com`, `manager@company.com`, `employee@company.com`,
+`vendor@company.com`. The seed refuses to run outside development and does not
+overwrite existing passwords. Never use these accounts in production.
+
+Next: role-scoped dashboard aggregates and realistic procurement seed records.
