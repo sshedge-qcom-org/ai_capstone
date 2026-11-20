@@ -37,6 +37,12 @@ with httpx.Client(base_url=base, timeout=15) as client:
                 result.raise_for_status()
                 assert len(result.json()) <= 3
         if role != "vendor":
+            visible = client.get("/requests?limit=1", headers={"Authorization": f"Bearer {token}"})
+            visible.raise_for_status()
+            if visible.json():
+                request_id = visible.json()[0]["id"]
+                client.get(f"/requests/{request_id}/comments",
+                           headers={"Authorization": f"Bearer {token}"}).raise_for_status()
             client.get(
                 "/suppliers", headers={"Authorization": f"Bearer {token}"}
             ).raise_for_status()

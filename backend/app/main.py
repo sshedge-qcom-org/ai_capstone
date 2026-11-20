@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.auth import router as auth_router
+from app.api.comments import router as comments_router
 from app.api.dashboard import router as dashboard_router
 from app.api.orders import router as orders_router
 from app.api.recommendations import router as recommendations_router
@@ -26,6 +27,7 @@ app.include_router(requests_router)
 app.include_router(suppliers_router)
 app.include_router(recommendations_router)
 app.include_router(orders_router)
+app.include_router(comments_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,

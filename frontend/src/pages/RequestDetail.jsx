@@ -4,6 +4,7 @@ import { api, errorMessage } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { AsyncState, Badge, date, money, useApi } from '../components/Async'
 import Recommendations from '../components/Recommendations'
+import Discussion from '../components/Discussion'
 
 export default function RequestDetail() {
   const { id } = useParams()
@@ -38,5 +39,6 @@ export default function RequestDetail() {
     {['manager', 'admin'].includes(user.role) && request.status === 'approved' && <Recommendations requestId={id} />}
     <section className="card"><h2>Decision history</h2>{request.history.length ? <ol>{request.history.map(event => <li key={event.id}>
       <Badge>{event.decision}</Badge> by user #{event.actor_id} · {date(event.created_at)}<p>{event.reason}</p></li>)}</ol> : <p>No decisions yet.</p>}</section>
+    <Discussion requestId={id} />
   </div>}</AsyncState></>
 }

@@ -51,3 +51,8 @@ month. Approved orders counts all orders. Supplier performance distinguishes
 open from delivered orders. Approval turnaround uses the first final decision
 (approval/rejection), excluding revision events. Empty aggregates return zeros
 and empty arrays, not invented chart data.
+
+Comments list roots by default. `parent_id` lists only that comment's direct
+replies, with independent `offset`/`limit` pagination. Responses include
+`author_name` and `reply_count`; the UI loads descendants on expansion.
+Replies are limited to eight levels; exceeding that limit returns 422.

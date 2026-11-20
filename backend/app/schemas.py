@@ -172,3 +172,25 @@ class OrderDetail(OrderOut):
     request_title: str
     supplier_name: str
     history: list[OrderEventOut]
+
+
+class CommentEdit(Input):
+    content: str = Field(min_length=1, max_length=5000)
+
+
+class CommentInput(CommentEdit):
+    parent_comment_id: int | None = Field(default=None, gt=0)
+
+
+class CommentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    request_id: int
+    user_id: int
+    parent_comment_id: int | None
+    content: str
+    is_deleted: bool
+    created_at: datetime
+    updated_at: datetime
+    author_name: str
+    reply_count: int

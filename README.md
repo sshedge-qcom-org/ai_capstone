@@ -15,7 +15,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 5 | Supplier directory, admin CRUD, user/category administration | Complete |
 | 6 | Explainable top-three weighted supplier ranking | Complete |
 | 7 | Order creation, vendor fulfilment, immutable value and history | Complete |
-| 8-10 | Discussions through production hardening | Planned |
+| 8 | Threaded comments, replies, edits and safe deletion | Complete |
+| 9-10 | Reporting and production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -94,4 +95,9 @@ Assigned vendors/admins advance Created → Processing → Shipped → Delivered
 Transitions are audited and delivery updates dashboard spending. Order lists and
 details are scoped to employee ownership, manager team or vendor supplier.
 
-Next: threaded request discussions with author-controlled edits and tombstones.
+Phase 8: request participants can discuss, reply and edit their own comments.
+Admins may moderate deletion; tombstones preserve descendants. Parent IDs cannot
+cross requests. Roots and direct replies are independently paginated, with replies
+loaded on expansion. Eight reply levels keep nested discussions usable.
+
+Next: procurement reports, charts and spreadsheet-safe CSV exports.
