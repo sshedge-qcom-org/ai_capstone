@@ -47,6 +47,7 @@ def main():
             "COOKIE_SECURE": "false",
             "CORS_ORIGINS": json.dumps(["http://localhost:5174"]),
             "FRONTEND_URL": "http://localhost:5174",
+            "STAGING_URL": "",
             "API_PROXY_TARGET": "http://127.0.0.1:8001",
         }
         python = sys.executable

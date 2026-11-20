@@ -49,6 +49,22 @@ Open http://localhost:5173. API health: http://127.0.0.1:8000/api/v1/health.
 Swagger: http://127.0.0.1:8000/docs. Environment values load from the root `.env`;
 relative SQLite paths resolve from the backend working directory.
 
+## Local HTTPS staging
+
+An isolated production-mode Docker deployment is available at
+**https://localhost:8443**, independent of the development application.
+See the [staging guide](docs/staging.md) for startup, local certificate trust,
+secure first-admin creation, backup/restore drills and external rollout gates.
+No demo accounts or development secrets are used in staging.
+
+```sh
+.venv/bin/python scripts/configure_staging.py
+docker compose -f deploy/compose.yml up --build -d --wait --wait-timeout 120
+.venv/bin/python scripts/verify_staging.py
+```
+
+Generate configuration only once; subsequent starts must preserve its secret.
+
 ## Verification
 
 ```sh
@@ -129,10 +145,12 @@ automated browser workflows, a locked environment and CI. The generated
 [Postman collection](postman/procurement.postman_collection.json) covers every API
 operation and contains no credentials.
 
-Verified locally: 25 Pytest cases, the frontend landing test, two Chromium
-journeys, desktop/mobile automated accessibility checks, and 45 Postman requests
-with 46 assertions. All pass. Migration round-trips and lint/build checks pass;
-the frontend dependency audit reports zero advisories.
+Verified locally: 26 Pytest cases, the frontend landing test, two lifecycle
+Chromium journeys, a production HTTPS staging browser check, desktop/mobile
+automated accessibility checks, and 45 Postman requests with 46 assertions.
+All pass. Migration round-trips and lint/build checks pass; the frontend
+dependency audit reports zero advisories. Staging acceptance also verifies
+backup/restore, restart persistence and a bounded 100-request load probe.
 
 ## Documentation and operations
 
@@ -140,6 +158,7 @@ the frontend dependency audit reports zero advisories.
 - [ER diagram and schema](docs/schema.md)
 - [API contracts](docs/api.md) and live Swagger at `/docs`
 - [Setup, production deployment, backup and restore](docs/setup.md)
+- [Verified local HTTPS staging and acceptance checklist](docs/staging.md)
 - [Role-based user guide](docs/user-guide.md)
 - [Contribution guide](CONTRIBUTING.md)
 - [Postman lifecycle instructions](postman/README.md)

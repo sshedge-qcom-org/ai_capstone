@@ -15,8 +15,8 @@ def run(args: list[str], cwd: Path = root, env: dict[str, str] | None = None):
     subprocess.run(args, cwd=cwd, env=env, check=True)
 
 
-run([str(python), "-m", "ruff", "check", "backend", "scripts"])
-run([str(python), "-m", "ruff", "format", "--check", "backend", "scripts"])
+run([str(python), "-m", "ruff", "check", "backend", "scripts", "deploy"])
+run([str(python), "-m", "ruff", "format", "--check", "backend", "scripts", "deploy"])
 run([str(python), "-m", "compileall", "-q", "backend/app"])
 with tempfile.TemporaryDirectory(prefix="procureai-verification-") as directory:
     env = {**os.environ, "DATABASE_URL": f"sqlite:///{directory}/migration.db"}

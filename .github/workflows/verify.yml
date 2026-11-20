@@ -28,3 +28,8 @@ jobs:
         working-directory: frontend
       - run: .venv/bin/python scripts/verify.py
       - run: .venv/bin/python scripts/e2e.py
+      - run: .venv/bin/python scripts/configure_staging.py
+      - run: docker compose -f deploy/compose.yml build --quiet
+      - run: .venv/bin/python scripts/verify_staging.py
+      - if: always()
+        run: docker compose -f deploy/compose.yml stop

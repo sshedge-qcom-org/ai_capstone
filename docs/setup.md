@@ -24,6 +24,10 @@ still be same-site for the Strict refresh cookie; same-origin proxying is prefer
 
 ## Production single-instance deployment
 
+For a ready-to-run, isolated local deployment with production settings and
+CA-verified HTTPS acceptance tests, follow the [staging guide](staging.md).
+It does not replace the external rollout decisions below.
+
 1. Provision Python 3.11+ and Node 22+. Install the locked Python dependencies
    using `pip install -r backend/requirements.lock` and `pip install ./backend`.
    The lock records the verified Python 3.14 environment; retest dependency
