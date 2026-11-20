@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { api, errorMessage } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { AsyncState, Badge, date, money, useApi } from '../components/Async'
+import Recommendations from '../components/Recommendations'
 
 export default function RequestDetail() {
   const { id } = useParams()
@@ -34,6 +35,7 @@ export default function RequestDetail() {
         <button className="secondary" disabled={busy || !reason.trim()} onClick={() => decide('revision')}>Send for revision</button>
         <button className="danger" disabled={busy || !reason.trim()} onClick={() => decide('rejected')}>Reject</button></div>
     </section>}
+    {['manager', 'admin'].includes(user.role) && request.status === 'approved' && <Recommendations requestId={id} />}
     <section className="card"><h2>Decision history</h2>{request.history.length ? <ol>{request.history.map(event => <li key={event.id}>
       <Badge>{event.decision}</Badge> by user #{event.actor_id} · {date(event.created_at)}<p>{event.reason}</p></li>)}</ol> : <p>No decisions yet.</p>}</section>
   </div>}</AsyncState></>

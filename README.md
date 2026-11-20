@@ -13,7 +13,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 3 | Role-scoped dashboard, KPI cards, trends and demo data | Complete |
 | 4 | Request CRUD, team review, revision and approval history | Complete |
 | 5 | Supplier directory, admin CRUD, user/category administration | Complete |
-| 6-10 | Recommendation engine through production hardening | Planned |
+| 6 | Explainable top-three weighted supplier ranking | Complete |
+| 7-10 | Order fulfilment through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -80,4 +81,10 @@ create/update/delete, category configuration and user/team/vendor assignment UI.
 Thirty seed suppliers cover five categories. Referenced suppliers/categories
 cannot be deleted; suppliers with historical orders cannot switch category.
 
-Next: explained top-three weighted supplier recommendations.
+Phase 6: approved requests show at most three matching suppliers, deterministic
+scores and factor explanations. Price/rating/reliability normalize to their
+documented scales; delivery uses `1 / (1 + days / 7)`. This is a transparent
+weighted ranking engine, not a trained ML model. Tests cover exact weights,
+ranking, stable ties, category matching, empty results and authorization.
+
+Next: order creation and vendor fulfilment with enforced state transitions.

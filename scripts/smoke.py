@@ -26,8 +26,19 @@ with httpx.Client(base_url=base, timeout=15) as client:
         )
         dashboard.raise_for_status()
         assert "monthly_spending" in dashboard.json()
+        if role in ("manager", "admin"):
+            auth = {"Authorization": f"Bearer {token}"}
+            approved = client.get("/requests?status=approved&limit=1", headers=auth)
+            approved.raise_for_status()
+            if approved.json():
+                request_id = approved.json()[0]["id"]
+                result = client.get(f"/requests/{request_id}/recommendations", headers=auth)
+                result.raise_for_status()
+                assert len(result.json()) <= 3
         if role != "vendor":
-            client.get("/suppliers", headers={"Authorization": f"Bearer {token}"}).raise_for_status()
+            client.get(
+                "/suppliers", headers={"Authorization": f"Bearer {token}"}
+            ).raise_for_status()
             client.get(
                 "/requests", headers={"Authorization": f"Bearer {token}"}
             ).raise_for_status()

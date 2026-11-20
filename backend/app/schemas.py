@@ -129,3 +129,10 @@ class SupplierOut(SupplierInput):
 
 class CategoryInput(Input):
     name: str = Field(min_length=1, max_length=80)
+
+
+class RecommendationOut(BaseModel):
+    supplier: SupplierOut
+    score: Decimal
+    contributions: dict[str, Decimal]
+    explanation: str
