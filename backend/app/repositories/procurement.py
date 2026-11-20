@@ -1,4 +1,5 @@
 from sqlalchemy import false, select
+from sqlalchemy.orm import Session
 
 from app.models import Order, PurchaseRequest, User
 
@@ -27,3 +28,23 @@ def order_scope(user: User):
     return query.where(
         Order.request_id.in_(request_scope(user).with_only_columns(PurchaseRequest.id))
     )
+
+
+class RequestRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_visible(self, user: User, request_id: int) -> PurchaseRequest | None:
+        return self.db.scalar(request_scope(user).where(PurchaseRequest.id == request_id))
+
+    def list(self, user: User, offset: int, limit: int, status: str | None, search: str):
+        query = request_scope(user)
+        if status:
+            query = query.where(PurchaseRequest.status == status)
+        if search:
+            query = query.where(PurchaseRequest.title.icontains(search, autoescape=True))
+        return self.db.scalars(
+            query.order_by(PurchaseRequest.created_at.desc(), PurchaseRequest.id.desc())
+            .offset(offset)
+            .limit(limit)
+        ).all()

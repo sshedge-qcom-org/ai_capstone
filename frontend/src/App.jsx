@@ -3,6 +3,9 @@ import { AuthProvider, Protected } from './auth/AuthContext'
 import Layout from './components/Layout'
 import AuthPage from './pages/AuthPage'
 import Dashboard from './pages/Dashboard'
+import Requests from './pages/Requests'
+import RequestForm, { EditRequest } from './pages/RequestForm'
+import RequestDetail from './pages/RequestDetail'
 
 export function Landing() {
   return <section className="hero">
@@ -22,6 +25,10 @@ export default function App() {
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage register />} />
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+      <Route path="/requests" element={<Protected roles={['employee', 'manager', 'admin']}><Requests /></Protected>} />
+      <Route path="/requests/new" element={<Protected roles={['employee']}><RequestForm /></Protected>} />
+      <Route path="/requests/:id/edit" element={<Protected roles={['employee']}><EditRequest /></Protected>} />
+      <Route path="/requests/:id" element={<Protected roles={['employee', 'manager', 'admin']}><RequestDetail /></Protected>} />
       <Route path="*" element={<section className="card"><h1>Page not found</h1><Link to="/">Go home</Link></section>} />
     </Routes></Layout></AuthProvider>
 }

@@ -11,7 +11,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 1 | Runnable monorepo, migrations, health and landing page | Complete |
 | 2 | Authentication, rotating refresh tokens, role guards | Complete |
 | 3 | Role-scoped dashboard, KPI cards, trends and demo data | Complete |
-| 4-10 | Request workflow through production hardening | Planned |
+| 4 | Request CRUD, team review, revision and approval history | Complete |
+| 5-10 | Supplier directory through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -68,4 +69,9 @@ suppliers use scoped SQL aggregates. The explicit seed includes 30 suppliers,
 30 requests and 20 orders across several months. Re-run migrations and seed after
 upgrading. Vendors see only their linked supplier's orders.
 
-Next: purchase request creation, editing, approval/rejection/revision and history.
+Phase 4: employees create and edit pending/revision requests; managers review
+their team's requests; admins see all. Rejection/revision require reasons.
+Approved/rejected/ordered requests cannot be edited. Conditional updates prevent
+concurrent workflow overwrites. Lists have server-side search, filters and paging.
+
+Next: searchable supplier directory, admin CRUD and category configuration.

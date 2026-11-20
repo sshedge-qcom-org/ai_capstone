@@ -19,7 +19,9 @@ export default function Layout({ children }) {
         <button className="secondary" disabled={busy} onClick={signOut}>Sign out</button></div>
         : <span className="muted">Your procurement, connected.</span>}
     </header>
-    {user && <nav aria-label="Main navigation" className="nav"><NavLink to="/dashboard">Overview</NavLink></nav>}
+    {user && <nav aria-label="Main navigation" className="nav"><NavLink to="/dashboard">Overview</NavLink>
+      {user.role !== 'vendor' && <NavLink to="/requests">Purchase requests</NavLink>}
+    </nav>}
     <main id="main">{error && <p className="error" role="alert">{error}</p>}{children}</main>
   </>
 }

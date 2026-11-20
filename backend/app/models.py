@@ -97,3 +97,13 @@ class Order(Base):
     order_date: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
     delivery_date: Mapped[datetime | None] = mapped_column(DateTime, index=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class ApprovalEvent(Base):
+    __tablename__ = "approval_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    request_id: Mapped[int] = mapped_column(ForeignKey("purchase_requests.id"), index=True)
+    actor_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    decision: Mapped[str] = mapped_column(String(20))
+    reason: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
