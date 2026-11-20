@@ -21,6 +21,9 @@ with httpx.Client(base_url=base, timeout=15) as client:
         profile = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
         profile.raise_for_status()
         assert profile.json()["role"] == role
+        dashboard = client.get("/dashboard", headers={"Authorization": f"Bearer {token}"})
+        dashboard.raise_for_status()
+        assert "monthly_spending" in dashboard.json()
         client.post("/auth/refresh").raise_for_status()
         client.post("/auth/logout").raise_for_status()
 print("Live health and all four authentication journeys passed.")

@@ -8,6 +8,7 @@ from app.config import settings
 from app.database import SessionLocal
 from app.models import Role, User
 from app.security import hash_password
+from app.services.seed_data import seed_procurement
 
 ROLES = ("admin", "manager", "employee", "vendor")
 
@@ -38,6 +39,7 @@ def seed():
         manager = db.scalar(select(User).where(User.email == "manager@company.com"))
         employee = db.scalar(select(User).where(User.email == "employee@company.com"))
         employee.manager_id = manager.id
+        seed_procurement(db, employee, manager)
         db.commit()
     print("Demo users seeded (existing passwords preserved).")
 

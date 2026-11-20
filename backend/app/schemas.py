@@ -45,12 +45,14 @@ class UserOut(BaseModel):
     is_active: bool
     created_at: datetime
     manager_id: int | None
+    supplier_id: int | None
 
 
 class UserUpdate(Input):
     role: RoleName
     is_active: bool
     manager_id: int | None = None
+    supplier_id: int | None = None
 
 
 class TokenOut(BaseModel):

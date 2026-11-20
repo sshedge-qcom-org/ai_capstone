@@ -10,7 +10,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 0 | Architecture, data model, API and UX contracts | Complete |
 | 1 | Runnable monorepo, migrations, health and landing page | Complete |
 | 2 | Authentication, rotating refresh tokens, role guards | Complete |
-| 3-10 | Dashboard through production hardening | Planned |
+| 3 | Role-scoped dashboard, KPI cards, trends and demo data | Complete |
+| 4-10 | Request workflow through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -62,4 +63,9 @@ and run `cd backend && ../.venv/bin/python -m app.seed`. Accounts:
 `vendor@company.com`. The seed refuses to run outside development and does not
 overwrite existing passwords. Never use these accounts in production.
 
-Next: role-scoped dashboard aggregates and realistic procurement seed records.
+Phase 3: dashboard KPIs, delivered monthly spending, approval breakdown and top
+suppliers use scoped SQL aggregates. The explicit seed includes 30 suppliers,
+30 requests and 20 orders across several months. Re-run migrations and seed after
+upgrading. Vendors see only their linked supplier's orders.
+
+Next: purchase request creation, editing, approval/rejection/revision and history.

@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.models import RefreshSession, User, utcnow
+from app.models import RefreshSession, Supplier, User, utcnow
 from app.repositories.users import UserRepository
 from app.schemas import Register, UserUpdate
 from app.security import decode_token, hash_password, issue_token, token_hash, verify_password
@@ -104,6 +104,12 @@ class AuthService:
             raise HTTPException(404, "User not found")
         if user.id == actor.id and (data.role != "admin" or not data.is_active):
             raise HTTPException(400, "You cannot demote or deactivate your own account")
+        if data.supplier_id is not None and (
+            data.role != "vendor" or not self.db.get(Supplier, data.supplier_id)
+        ):
+            raise HTTPException(422, "Only vendors may be linked to an existing supplier")
+        if data.role == "vendor" and data.is_active and data.supplier_id is None:
+            raise HTTPException(422, "Active vendors require a supplier assignment")
         if data.manager_id is not None:
             manager = self.users.get(data.manager_id)
             if not manager or manager.role != "manager" or not manager.is_active:

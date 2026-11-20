@@ -1,7 +1,8 @@
 import { Link, Route, Routes } from 'react-router-dom'
-import { AuthProvider, Protected, useAuth } from './auth/AuthContext'
+import { AuthProvider, Protected } from './auth/AuthContext'
 import Layout from './components/Layout'
 import AuthPage from './pages/AuthPage'
+import Dashboard from './pages/Dashboard'
 
 export function Landing() {
   return <section className="hero">
@@ -16,17 +17,11 @@ export function Landing() {
     </div>
   </section>
 }
-
 export default function App() {
   return <AuthProvider><Layout><Routes><Route path="/" element={<Landing />} />
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage register />} />
-      <Route path="/dashboard" element={<Protected><Workspace /></Protected>} />
+      <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
       <Route path="*" element={<section className="card"><h1>Page not found</h1><Link to="/">Go home</Link></section>} />
     </Routes></Layout></AuthProvider>
-}
-
-function Workspace() {
-  const { user } = useAuth()
-  return <section className="card"><h1>Your workspace</h1><p>Signed in as {user.full_name}.</p><span className="badge">{user.role}</span></section>
 }
