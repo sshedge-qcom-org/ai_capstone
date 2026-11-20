@@ -4,7 +4,16 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Category, Order, PurchaseRequest, Supplier, User, utcnow
+from app.models import (
+    ApprovalEvent,
+    Category,
+    Order,
+    OrderEvent,
+    PurchaseRequest,
+    Supplier,
+    User,
+    utcnow,
+)
 
 CATEGORIES = ("IT Equipment", "Office Supplies", "Furniture", "Services", "Facilities")
 COMPANIES = (
@@ -86,5 +95,38 @@ def seed_procurement(db: Session, employee: User, manager: User):
                     order_date=created + timedelta(days=2),
                     delivery_date=created + timedelta(days=9) if delivered else None,
                     updated_at=created + timedelta(days=9 if delivered else 3),
+                )
+            )
+
+
+def seed_history(db: Session, manager: User):
+    for request in db.scalars(select(PurchaseRequest)).all():
+        if db.scalar(select(ApprovalEvent.id).where(ApprovalEvent.request_id == request.id)):
+            continue
+        if request.status in ("approved", "ordered", "rejected", "revision"):
+            db.add(
+                ApprovalEvent(
+                    request_id=request.id,
+                    actor_id=manager.id,
+                    decision="approved" if request.status == "ordered" else request.status,
+                    reason="Reviewed during the scheduled procurement cycle.",
+                    created_at=request.created_at + timedelta(hours=24 + request.id % 24),
+                )
+            )
+    for order in db.scalars(select(Order)).all():
+        if db.scalar(select(OrderEvent.id).where(OrderEvent.order_id == order.id)):
+            continue
+        steps = ("created", "processing", "shipped", "delivered")
+        for i, status in enumerate(steps[: steps.index(order.status) + 1]):
+            db.add(
+                OrderEvent(
+                    order_id=order.id,
+                    actor_id=manager.id,
+                    status=status,
+                    created_at=(
+                        order.delivery_date
+                        if status == "delivered"
+                        else order.order_date + timedelta(hours=12 * i)
+                    ),
                 )
             )

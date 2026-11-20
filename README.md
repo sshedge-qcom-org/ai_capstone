@@ -14,7 +14,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 4 | Request CRUD, team review, revision and approval history | Complete |
 | 5 | Supplier directory, admin CRUD, user/category administration | Complete |
 | 6 | Explainable top-three weighted supplier ranking | Complete |
-| 7-10 | Order fulfilment through production hardening | Planned |
+| 7 | Order creation, vendor fulfilment, immutable value and history | Complete |
+| 8-10 | Discussions through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -87,4 +88,10 @@ documented scales; delivery uses `1 / (1 + days / 7)`. This is a transparent
 weighted ranking engine, not a trained ML model. Tests cover exact weights,
 ranking, stable ties, category matching, empty results and authorization.
 
-Next: order creation and vendor fulfilment with enforced state transitions.
+Phase 7: managers/admins select a matching supplier and create exactly one order
+for an approved request. The order snapshots its approved estimated total.
+Assigned vendors/admins advance Created → Processing → Shipped → Delivered.
+Transitions are audited and delivery updates dashboard spending. Order lists and
+details are scoped to employee ownership, manager team or vendor supplier.
+
+Next: threaded request discussions with author-controlled edits and tombstones.

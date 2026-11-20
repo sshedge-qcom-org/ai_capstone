@@ -18,6 +18,7 @@ with httpx.Client(base_url=base, timeout=15) as client:
         )
         response.raise_for_status()
         token = response.json()["access_token"]
+        client.get("/orders", headers={"Authorization": f"Bearer {token}"}).raise_for_status()
         profile = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
         profile.raise_for_status()
         assert profile.json()["role"] == role

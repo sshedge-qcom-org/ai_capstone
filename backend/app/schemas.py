@@ -136,3 +136,39 @@ class RecommendationOut(BaseModel):
     score: Decimal
     contributions: dict[str, Decimal]
     explanation: str
+
+
+class OrderInput(Input):
+    request_id: int = Field(gt=0)
+    supplier_id: int = Field(gt=0)
+
+
+class OrderStatus(Input):
+    status: Literal["processing", "shipped", "delivered"]
+
+
+class OrderOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    request_id: int
+    supplier_id: int
+    approved_by: int
+    status: str
+    amount: Decimal
+    order_date: datetime
+    delivery_date: datetime | None
+    updated_at: datetime
+
+
+class OrderEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    actor_id: int
+    status: str
+    created_at: datetime
+
+
+class OrderDetail(OrderOut):
+    request_title: str
+    supplier_name: str
+    history: list[OrderEventOut]
