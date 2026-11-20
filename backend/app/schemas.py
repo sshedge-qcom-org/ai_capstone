@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, field_validator
 
 RoleName = Literal["employee", "manager", "admin", "vendor"]
 Name = Annotated[str, Field(min_length=1, max_length=120)]
@@ -15,7 +15,9 @@ class Input(BaseModel):
 class Register(Input):
     full_name: Name
     email: EmailStr
-    password: str = Field(min_length=10, max_length=72)
+    password: Annotated[str, StringConstraints(strip_whitespace=False)] = Field(
+        min_length=10, max_length=72
+    )
 
     @field_validator("password")
     @classmethod
@@ -34,7 +36,9 @@ class Register(Input):
 
 class Login(Input):
     email: EmailStr
-    password: str = Field(min_length=1, max_length=72)
+    password: Annotated[str, StringConstraints(strip_whitespace=False)] = Field(
+        min_length=1, max_length=72
+    )
 
 
 class UserOut(BaseModel):
@@ -194,3 +198,64 @@ class CommentOut(BaseModel):
     updated_at: datetime
     author_name: str
     reply_count: int
+
+
+class MonthlySpend(BaseModel):
+    month: str
+    amount: Decimal
+
+
+class StatusCount(BaseModel):
+    status: str
+    count: int
+
+
+class SupplierSpend(BaseModel):
+    supplier: str
+    amount: Decimal
+
+
+class DashboardOut(BaseModel):
+    total_requests: int
+    total_suppliers: int
+    approved_orders: int
+    pending_approvals: int
+    procurement_spend: Decimal
+    monthly_spending: list[MonthlySpend]
+    approval_status: list[StatusCount]
+    top_suppliers: list[SupplierSpend]
+
+
+class CategorySpend(BaseModel):
+    category: str
+    amount: Decimal
+    orders: int
+
+
+class SupplierPerformance(BaseModel):
+    supplier_id: int
+    supplier: str
+    rating: Decimal
+    reliability_score: Decimal
+    total_orders: int
+    delivered_orders: int
+    delivered_value: Decimal
+    average_actual_delivery_days: float | None
+
+
+class MonthlyTrend(MonthlySpend):
+    requests: int
+    delivered_orders: int
+
+
+class ApprovalTurnaround(BaseModel):
+    category: str
+    decided_requests: int
+    average_hours: float
+
+
+class ReportsOut(BaseModel):
+    spending_by_category: list[CategorySpend]
+    supplier_performance: list[SupplierPerformance]
+    monthly_trends: list[MonthlyTrend]
+    approval_turnaround: list[ApprovalTurnaround]

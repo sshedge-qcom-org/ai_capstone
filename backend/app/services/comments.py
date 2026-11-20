@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from app.models import Comment, User
@@ -52,7 +53,18 @@ class CommentService:
             raise HTTPException(403, "Only the author may edit a comment")
         if comment.is_deleted:
             raise HTTPException(400, "Deleted comments cannot be edited")
-        comment.content = content
+        result = self.db.execute(
+            update(Comment)
+            .where(
+                Comment.id == comment_id,
+                Comment.is_deleted.is_(False),
+                Comment.updated_at == comment.updated_at,
+            )
+            .values(content=content)
+        )
+        if result.rowcount != 1:
+            self.db.rollback()
+            raise HTTPException(409, "Comment changed; refresh and try again")
         self.db.commit()
         return self.repo.detail(comment.id)
 

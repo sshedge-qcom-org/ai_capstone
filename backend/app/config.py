@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     refresh_token_days: int = Field(default=7, ge=1, le=30)
     cors_origins: list[str] = ["http://localhost:5173"]
     cookie_secure: bool = False
+    auth_rate_limit: int = Field(default=60, ge=5, le=1000)
 
     @model_validator(mode="after")
     def production_security(self):

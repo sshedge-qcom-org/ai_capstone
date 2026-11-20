@@ -29,5 +29,5 @@ def test_dashboard_scopes_and_delivered_spend(client, headers, db):
 
 def test_empty_dashboard(client, headers):
     data = client.get("/api/v1/dashboard", headers=headers("employee")).json()
-    assert data["procurement_spend"] == 0
+    assert Decimal(data["procurement_spend"]) == 0
     assert data["monthly_spending"] == []

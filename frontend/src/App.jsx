@@ -1,15 +1,20 @@
 import { Link, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { AuthProvider, Protected } from './auth/AuthContext'
 import Layout from './components/Layout'
 import AuthPage from './pages/AuthPage'
-import Dashboard from './pages/Dashboard'
-import Requests from './pages/Requests'
-import RequestForm, { EditRequest } from './pages/RequestForm'
-import RequestDetail from './pages/RequestDetail'
-import Suppliers, { SupplierDetail } from './pages/Suppliers'
-import Admin from './pages/Admin'
-import Orders, { OrderDetail } from './pages/Orders'
-import Reports from './pages/Reports'
+
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Requests = lazy(() => import('./pages/Requests'))
+const RequestForm = lazy(() => import('./pages/RequestForm'))
+const EditRequest = lazy(() => import('./pages/RequestForm').then(module => ({ default: module.EditRequest })))
+const RequestDetail = lazy(() => import('./pages/RequestDetail'))
+const Suppliers = lazy(() => import('./pages/Suppliers'))
+const SupplierDetail = lazy(() => import('./pages/Suppliers').then(module => ({ default: module.SupplierDetail })))
+const Admin = lazy(() => import('./pages/Admin'))
+const Orders = lazy(() => import('./pages/Orders'))
+const OrderDetail = lazy(() => import('./pages/Orders').then(module => ({ default: module.OrderDetail })))
+const Reports = lazy(() => import('./pages/Reports'))
 
 export function Landing() {
   return <section className="hero">
@@ -25,7 +30,7 @@ export function Landing() {
   </section>
 }
 export default function App() {
-  return <AuthProvider><Layout><Routes><Route path="/" element={<Landing />} />
+  return <AuthProvider><Layout><Suspense fallback={<p role="status">Loading page…</p>}><Routes><Route path="/" element={<Landing />} />
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage register />} />
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
@@ -40,5 +45,5 @@ export default function App() {
       <Route path="/orders/:id" element={<Protected><OrderDetail /></Protected>} />
       <Route path="/reports" element={<Protected roles={['manager', 'admin']}><Reports /></Protected>} />
       <Route path="*" element={<section className="card"><h1>Page not found</h1><Link to="/">Go home</Link></section>} />
-    </Routes></Layout></AuthProvider>
+    </Routes></Suspense></Layout></AuthProvider>
 }

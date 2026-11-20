@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db, make_engine
 from app.main import app
 from app.models import Role, User
+from app.rate_limit import login_limiter
 from app.security import hash_password
 
 TEST_PASSWORD = "TestingOnly123"
@@ -38,6 +39,7 @@ def db(tmp_path):
 
 @pytest.fixture
 def client(db):
+    login_limiter.buckets.clear()
     app.dependency_overrides[get_db] = lambda: db
     with TestClient(app) as client:
         yield client

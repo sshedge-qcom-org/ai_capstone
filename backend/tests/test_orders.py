@@ -52,9 +52,8 @@ def test_order_lifecycle_scope_and_analytics(client, headers, db):
     detail = client.get(path, headers=vendor).json()
     assert detail["delivery_date"]
     assert len(detail["history"]) == 4
-    assert client.get("/api/v1/dashboard", headers=manager).json()["procurement_spend"] == float(
-        Decimal(str(before)) + request.estimated_budget
-    )
+    after = client.get("/api/v1/dashboard", headers=manager).json()["procurement_spend"]
+    assert Decimal(after) == Decimal(before) + request.estimated_budget
     db.get(User, 4).supplier_id = None
     db.commit()
     assert client.get(path, headers=vendor).status_code == 404

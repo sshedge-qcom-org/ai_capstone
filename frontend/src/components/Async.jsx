@@ -25,5 +25,5 @@ export function AsyncState({ loading, error, reload, children }) {
 }
 
 export const money = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value))
-export const date = value => value ? new Date(value.includes('T') && !value.endsWith('Z') ? `${value}Z` : value).toLocaleDateString() : '—'
+export const date = value => value ? new Date(value.includes('T') && !/(Z|[+-]\d{2}:\d{2})$/i.test(value) ? `${value}Z` : value).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '—'
 export const Badge = ({ children }) => <span className="badge">{children}</span>

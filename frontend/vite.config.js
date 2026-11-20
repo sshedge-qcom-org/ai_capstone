@@ -4,6 +4,15 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: { proxy: { '/api': 'http://127.0.0.1:8000' } },
-  test: { environment: 'jsdom', globals: true },
+  server: { proxy: { '/api': process.env.API_PROXY_TARGET || 'http://127.0.0.1:8000' } },
+  test: { environment: 'jsdom', globals: true, exclude: ['e2e/**', 'node_modules/**'] },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/node_modules/') && /recharts|d3-|victory|react-smooth/.test(id)) return 'charts'
+        },
+      },
+    },
+  },
 })

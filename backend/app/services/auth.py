@@ -2,7 +2,7 @@ import uuid
 from datetime import timedelta
 
 from fastapi import HTTPException
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -104,6 +104,9 @@ class AuthService:
             raise HTTPException(404, "User not found")
         if user.id == actor.id and (data.role != "admin" or not data.is_active):
             raise HTTPException(400, "You cannot demote or deactivate your own account")
+        if user.role == "manager" and (data.role != "manager" or not data.is_active):
+            if self.db.scalar(select(User.id).where(User.manager_id == user.id).limit(1)):
+                raise HTTPException(409, "Reassign this manager's employees before changing access")
         if data.supplier_id is not None and (
             data.role != "vendor" or not self.db.get(Supplier, data.supplier_id)
         ):
@@ -118,5 +121,10 @@ class AuthService:
                 raise HTTPException(422, "Only employees can be assigned a separate manager")
         for key, value in data.model_dump().items():
             setattr(user, key, value)
+        self.db.execute(
+            update(RefreshSession)
+            .where(RefreshSession.user_id == user.id, RefreshSession.revoked_at.is_(None))
+            .values(revoked_at=utcnow())
+        )
         self.db.commit()
         return user

@@ -2,7 +2,7 @@
 
 :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #172f49; background: #f3f6fa; font-synthesis: none; }
 * { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; overflow-wrap: anywhere; }
 a { color: #155e75; text-decoration: none; }
 a:hover { text-decoration: underline; }
 button, input, select, textarea { font: inherit; }
@@ -26,10 +26,11 @@ p { line-height: 1.7; margin: 0 0 1rem; }
 .hero h1 { font-size: clamp(2.6rem, 6vw, 4.5rem); }
 .hero h1 span { color: #146c67; }
 .hero > p { max-width: 650px; }
-.feature-grid, .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+.feature-grid, .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
 .card { background: white; padding: 1.5rem; border: 1px solid #dce5ef; border-radius: .8rem; box-shadow: 0 3px 12px #203c5610; min-width: 0; }
 .step { display: block; color: #14837b; font-size: 1.8rem; margin-bottom: .7rem; }
 .row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.row > * { min-width: 0; }
 .between { justify-content: space-between; }
 .stack { display: grid; gap: 1rem; }
 .error { background: #fff0ef; border-left: 4px solid #b83240; color: #942834; padding: 1rem; border-radius: .3rem; }

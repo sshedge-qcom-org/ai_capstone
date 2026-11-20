@@ -1,0 +1,1245 @@
+{
+  "info": {
+    "name": "AI Procurement Platform - local lifecycle",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order against explicitly seeded development data. Set password locally. Creates a real delivered order and updates the demo vendor assignment. Do not run against production."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api/v1"
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.collectionVariables.set(\"target_delivery_date\", new Date(Date.now() + 14 * 86400000).toISOString().slice(0,10));",
+          "if (!pm.collectionVariables.get(\"demo_category\")) pm.collectionVariables.set(\"demo_category\", \"Postman \" + Date.now());"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register employee",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/register",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Employee\",\n  \"email\": \"postman-{{$timestamp}}@example.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign in as employee",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"employee@company.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Current user",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/auth/me",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rotate refresh cookie",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/refresh",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List categories",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/categories",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create request",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/requests",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman verified laptop\",\n  \"description\": \"Equipment for the engineering onboarding cohort\",\n  \"category\": \"IT Equipment\",\n  \"quantity\": 2,\n  \"estimated_budget\": \"2400.50\",\n  \"target_delivery_date\": \"{{target_delivery_date}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"request_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List requests",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/requests?limit=20",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request details",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/requests/{{request_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edit pending request",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/requests/{{request_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman verified laptop\",\n  \"description\": \"Equipment for the engineering onboarding cohort\",\n  \"category\": \"IT Equipment\",\n  \"quantity\": 2,\n  \"estimated_budget\": \"2400.50\",\n  \"target_delivery_date\": \"{{target_delivery_date}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add discussion",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/requests/{{request_id}}/comments",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Please include warranty.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"comment_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reply to discussion",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/requests/{{request_id}}/comments",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Specification attached in the request.\",\n  \"parent_comment_id\": \"{{comment_id}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edit discussion",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/comments/{{comment_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Please include standard warranty.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List discussion roots",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/requests/{{request_id}}/comments",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List replies",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/requests/{{request_id}}/comments?parent_id={{comment_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign in as manager",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"manager@company.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approve team request",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/requests/{{request_id}}/decision",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"approved\",\n  \"reason\": \"Within departmental budget.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Top three recommendations",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/requests/{{request_id}}/recommendations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.test(\"Three suppliers\", () => pm.expect(pm.response.json()).to.have.lengthOf(3));",
+              "pm.collectionVariables.set(\"recommended_supplier_id\", pm.response.json()[0].supplier.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create purchase order",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/orders",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"request_id\": \"{{request_id}}\",\n  \"supplier_id\": \"{{recommended_supplier_id}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"order_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List orders",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/orders",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order details",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/orders/{{order_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/dashboard",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Procurement reports",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/reports",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export spending_by_category",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/reports/export?report=spending_by_category",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export supplier_performance",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/reports/export?report=supplier_performance",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export monthly_trends",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/reports/export?report=monthly_trends",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export approval_turnaround",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/reports/export?report=approval_turnaround",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign in as admin",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@company.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List users",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/users?limit=100",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"vendor_id\", pm.response.json().find(u => u.email === \"vendor@company.com\").id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assign vendor to selected supplier",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/users/{{vendor_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"vendor\",\n  \"is_active\": true,\n  \"supplier_id\": \"{{recommended_supplier_id}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create category",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categories",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{demo_category}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete unused category",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/categories/{{demo_category}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search suppliers",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/suppliers?search=Northstar&limit=20",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplier details",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/suppliers/{{recommended_supplier_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create temporary supplier",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/suppliers",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company_name\": \"Postman Verification Supplier\",\n  \"category\": \"IT Equipment\",\n  \"rating\": \"4.5\",\n  \"average_price_score\": \"80\",\n  \"average_delivery_days\": 7,\n  \"reliability_score\": \"95\",\n  \"contact_person\": \"Verification Team\",\n  \"email\": \"verification@example.com\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"temporary_supplier_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update supplier",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/suppliers/{{temporary_supplier_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company_name\": \"Postman Verification Supplier\",\n  \"category\": \"IT Equipment\",\n  \"rating\": \"4.5\",\n  \"average_price_score\": \"80\",\n  \"average_delivery_days\": 7,\n  \"reliability_score\": \"95\",\n  \"contact_person\": \"Verification Team\",\n  \"email\": \"verification@example.com\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete unused supplier",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/suppliers/{{temporary_supplier_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign in as vendor",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"vendor@company.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assigned vendor orders",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/orders",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mark order processing",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/orders/{{order_id}}/status",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"processing\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mark order shipped",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/orders/{{order_id}}/status",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"shipped\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mark order delivered",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/orders/{{order_id}}/status",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"delivered\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign in as employee",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"employee@company.com\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "pm.collectionVariables.set(\"access_token\", pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete own comment (preserve replies)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/comments/{{comment_id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sign out",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/logout",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Request succeeds\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

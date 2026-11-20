@@ -17,7 +17,7 @@ FastAPI, SQLAlchemy, and SQLite.
 | 7 | Order creation, vendor fulfilment, immutable value and history | Complete |
 | 8 | Threaded comments, replies, edits and safe deletion | Complete |
 | 9 | Scoped reports, visualizations and safe CSV export | Complete |
-| 10 | Production hardening and release verification | Planned |
+| 10 | Production hardening, integration/browser verification, release docs | Complete |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -52,11 +52,26 @@ relative SQLite paths resolve from the backend working directory.
 ## Verification
 
 ```sh
-.venv/bin/ruff check backend scripts
-.venv/bin/python -m compileall -q backend/app
-cd backend && ../.venv/bin/pytest -q
-cd ../frontend && npm run build && npm run lint && npm test
+.venv/bin/python scripts/verify.py
+cd frontend && npx playwright install chromium && cd ..
+.venv/bin/python scripts/e2e.py
 ```
+
+The first command checks lint/format, Python compilation, migration
+upgrade/downgrade/model parity on a temporary database, all API tests, frontend
+build/lint/tests and dependency advisories. The second verification script starts
+isolated test servers, seeds a temporary database with random credentials, runs
+real Chromium workflows and WCAG automated checks, then stops the servers.
+Neither verification script modifies the local development database.
+GitHub Actions runs the same gates.
+Add `--postman` to the E2E command to execute all 45 Postman requests with Newman.
+
+For reproducible Python dependencies, use
+`.venv/bin/pip install -r backend/requirements.lock` before installing the backend.
+The lock records the verified Python 3.14 environment. Python 3.11+ is the declared
+minimum; other minors require their own runtime verification.
+
+## Features and phase notes
 
 Phase 1: migration, health test, frontend build/lint and landing test pass.
 Phase 2 adds login/registration, in-memory access tokens, HttpOnly rotating refresh
@@ -107,4 +122,35 @@ CSV files neutralize spreadsheet formulas. Financial reports reconcile with
 dashboard delivered spending. Turnaround measures creation to the first final
 approval/rejection, excluding revision events.
 
-Next: production hardening, full verification, guides, Postman collection and release.
+Phase 10 adds bounded authentication throttling, safe validation/database error
+responses, request IDs, refresh revocation on access changes, comment edit conflict
+checks, an error boundary, route-level code splitting, accessible chart tables,
+automated browser workflows, a locked environment and CI. The generated
+[Postman collection](postman/procurement.postman_collection.json) covers every API
+operation and contains no credentials.
+
+Verified locally: 25 Pytest cases, the frontend landing test, two Chromium
+journeys, desktop/mobile automated accessibility checks, and 45 Postman requests
+with 46 assertions. All pass. Migration round-trips and lint/build checks pass;
+the frontend dependency audit reports zero advisories.
+
+## Documentation and operations
+
+- [Architecture and ranking design](docs/architecture.md)
+- [ER diagram and schema](docs/schema.md)
+- [API contracts](docs/api.md) and live Swagger at `/docs`
+- [Setup, production deployment, backup and restore](docs/setup.md)
+- [Role-based user guide](docs/user-guide.md)
+- [Contribution guide](CONTRIBUTING.md)
+- [Postman lifecycle instructions](postman/README.md)
+
+Release: `v1.0.0`. All eleven phase commits are local; no remote push is performed.
+
+This is a working single-instance release. Before company rollout, configure TLS,
+reverse-proxy limits, monitoring and encrypted backups; complete load testing and
+organization-specific security/operational review. SQLite is not a horizontally
+scaled database. SSO/MFA, password recovery, payments and negotiated supplier
+quotes are outside this release's scope.
+
+Next step: follow the deployment guide and complete the operational acceptance
+checklist in your staging environment.
