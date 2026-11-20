@@ -23,6 +23,7 @@ export default function Layout({ children }) {
       {user.role !== 'vendor' && <NavLink to="/requests">Purchase requests</NavLink>}
       {user.role !== 'vendor' && <NavLink to="/suppliers">Suppliers</NavLink>}
       <NavLink to="/orders">Orders</NavLink>
+      {['manager', 'admin'].includes(user.role) && <NavLink to="/reports">Reports</NavLink>}
       {user.role === 'admin' && <NavLink to="/admin">Administration</NavLink>}
     </nav>}
     <main id="main">{error && <p className="error" role="alert">{error}</p>}{children}</main>

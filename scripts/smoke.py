@@ -18,7 +18,9 @@ with httpx.Client(base_url=base, timeout=15) as client:
         )
         response.raise_for_status()
         token = response.json()["access_token"]
-        client.get("/orders", headers={"Authorization": f"Bearer {token}"}).raise_for_status()
+        client.get(
+            "/orders", headers={"Authorization": f"Bearer {token}"}
+        ).raise_for_status()
         profile = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
         profile.raise_for_status()
         assert profile.json()["role"] == role
@@ -28,21 +30,30 @@ with httpx.Client(base_url=base, timeout=15) as client:
         dashboard.raise_for_status()
         assert "monthly_spending" in dashboard.json()
         if role in ("manager", "admin"):
+            client.get("/reports", headers={"Authorization": f"Bearer {token}"}).raise_for_status()
+            client.get("/reports/export?report=monthly_trends",
+                       headers={"Authorization": f"Bearer {token}"}).raise_for_status()
             auth = {"Authorization": f"Bearer {token}"}
             approved = client.get("/requests?status=approved&limit=1", headers=auth)
             approved.raise_for_status()
             if approved.json():
                 request_id = approved.json()[0]["id"]
-                result = client.get(f"/requests/{request_id}/recommendations", headers=auth)
+                result = client.get(
+                    f"/requests/{request_id}/recommendations", headers=auth
+                )
                 result.raise_for_status()
                 assert len(result.json()) <= 3
         if role != "vendor":
-            visible = client.get("/requests?limit=1", headers={"Authorization": f"Bearer {token}"})
+            visible = client.get(
+                "/requests?limit=1", headers={"Authorization": f"Bearer {token}"}
+            )
             visible.raise_for_status()
             if visible.json():
                 request_id = visible.json()[0]["id"]
-                client.get(f"/requests/{request_id}/comments",
-                           headers={"Authorization": f"Bearer {token}"}).raise_for_status()
+                client.get(
+                    f"/requests/{request_id}/comments",
+                    headers={"Authorization": f"Bearer {token}"},
+                ).raise_for_status()
             client.get(
                 "/suppliers", headers={"Authorization": f"Bearer {token}"}
             ).raise_for_status()

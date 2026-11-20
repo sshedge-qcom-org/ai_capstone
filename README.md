@@ -16,7 +16,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 6 | Explainable top-three weighted supplier ranking | Complete |
 | 7 | Order creation, vendor fulfilment, immutable value and history | Complete |
 | 8 | Threaded comments, replies, edits and safe deletion | Complete |
-| 9-10 | Reporting and production hardening | Planned |
+| 9 | Scoped reports, visualizations and safe CSV export | Complete |
+| 10 | Production hardening and release verification | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -100,4 +101,10 @@ Admins may moderate deletion; tombstones preserve descendants. Parent IDs cannot
 cross requests. Roots and direct replies are independently paginated, with replies
 loaded on expansion. Eight reply levels keep nested discussions usable.
 
-Next: procurement reports, charts and spreadsheet-safe CSV exports.
+Phase 9: managers/admins can filter reports by UTC date range and export spending
+by category, supplier performance, monthly activity and approval turnaround.
+CSV files neutralize spreadsheet formulas. Financial reports reconcile with
+dashboard delivered spending. Turnaround measures creation to the first final
+approval/rejection, excluding revision events.
+
+Next: production hardening, full verification, guides, Postman collection and release.

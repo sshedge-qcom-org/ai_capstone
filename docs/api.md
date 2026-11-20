@@ -56,3 +56,8 @@ Comments list roots by default. `parent_id` lists only that comment's direct
 replies, with independent `offset`/`limit` pagination. Responses include
 `author_name` and `reply_count`; the UI loads descendants on expansion.
 Replies are limited to eight levels; exceeding that limit returns 422.
+
+Reports accept optional inclusive `since` and `until` dates. Financial spending
+uses delivery date; supplier performance cohorts use order date; turnaround
+uses first final decision date. Export report names are `spending_by_category`,
+`supplier_performance`, `monthly_trends`, `approval_turnaround`.

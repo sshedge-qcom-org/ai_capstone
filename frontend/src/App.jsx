@@ -9,6 +9,7 @@ import RequestDetail from './pages/RequestDetail'
 import Suppliers, { SupplierDetail } from './pages/Suppliers'
 import Admin from './pages/Admin'
 import Orders, { OrderDetail } from './pages/Orders'
+import Reports from './pages/Reports'
 
 export function Landing() {
   return <section className="hero">
@@ -37,6 +38,7 @@ export default function App() {
       <Route path="/admin" element={<Protected roles={['admin']}><Admin /></Protected>} />
       <Route path="/orders" element={<Protected><Orders /></Protected>} />
       <Route path="/orders/:id" element={<Protected><OrderDetail /></Protected>} />
+      <Route path="/reports" element={<Protected roles={['manager', 'admin']}><Reports /></Protected>} />
       <Route path="*" element={<section className="card"><h1>Page not found</h1><Link to="/">Go home</Link></section>} />
     </Routes></Layout></AuthProvider>
 }
