@@ -8,12 +8,47 @@ FastAPI, SQLAlchemy, and SQLite.
 | Phase | Deliverable | Status |
 | --- | --- | --- |
 | 0 | Architecture, data model, API and UX contracts | Complete |
-| 1-10 | Application setup through production hardening | Planned |
+| 1 | Runnable monorepo, migrations, health and landing page | Complete |
+| 2-10 | Authentication through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
 [user journeys](docs/journeys.md). The [delivery plan](docs/delivery.md) defines
 verification gates and operational boundaries.
 
-Phase 0 is documentation-only; there is no application build or test runner yet.
-Next: create the runnable monorepo and health endpoint.
+## Local setup
+
+Requires Python 3.11+ and Node.js 22+.
+
+```sh
+python3 scripts/configure.py
+python3 -m venv .venv
+.venv/bin/pip install -e './backend[dev]'
+cd backend
+../.venv/bin/alembic upgrade head
+../.venv/bin/uvicorn app.main:app --reload
+```
+
+In another terminal:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Open http://localhost:5173. API health: http://127.0.0.1:8000/api/v1/health.
+Swagger: http://127.0.0.1:8000/docs. Environment values load from the root `.env`;
+relative SQLite paths resolve from the backend working directory.
+
+## Verification
+
+```sh
+.venv/bin/ruff check backend scripts
+.venv/bin/python -m compileall -q backend/app
+cd backend && ../.venv/bin/pytest -q
+cd ../frontend && npm run build && npm run lint && npm test
+```
+
+Phase 1: migration, health test, frontend build/lint and landing test pass.
+Next: authentication, rotating refresh sessions and role-based guards.

@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Backend development server",
+			"type": "shell",
+			"command": "cd backend && ../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Frontend development server",
+			"type": "shell",
+			"command": "cd frontend && npm run dev -- --port 5173 --strictPort",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
