@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard'
 import Requests from './pages/Requests'
 import RequestForm, { EditRequest } from './pages/RequestForm'
 import RequestDetail from './pages/RequestDetail'
+import Suppliers, { SupplierDetail } from './pages/Suppliers'
+import Admin from './pages/Admin'
 
 export function Landing() {
   return <section className="hero">
@@ -29,6 +31,9 @@ export default function App() {
       <Route path="/requests/new" element={<Protected roles={['employee']}><RequestForm /></Protected>} />
       <Route path="/requests/:id/edit" element={<Protected roles={['employee']}><EditRequest /></Protected>} />
       <Route path="/requests/:id" element={<Protected roles={['employee', 'manager', 'admin']}><RequestDetail /></Protected>} />
+      <Route path="/suppliers" element={<Protected roles={['employee', 'manager', 'admin']}><Suppliers /></Protected>} />
+      <Route path="/suppliers/:id" element={<Protected roles={['employee', 'manager', 'admin']}><SupplierDetail /></Protected>} />
+      <Route path="/admin" element={<Protected roles={['admin']}><Admin /></Protected>} />
       <Route path="*" element={<section className="card"><h1>Page not found</h1><Link to="/">Go home</Link></section>} />
     </Routes></Layout></AuthProvider>
 }

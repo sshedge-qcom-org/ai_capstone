@@ -12,7 +12,8 @@ FastAPI, SQLAlchemy, and SQLite.
 | 2 | Authentication, rotating refresh tokens, role guards | Complete |
 | 3 | Role-scoped dashboard, KPI cards, trends and demo data | Complete |
 | 4 | Request CRUD, team review, revision and approval history | Complete |
-| 5-10 | Supplier directory through production hardening | Planned |
+| 5 | Supplier directory, admin CRUD, user/category administration | Complete |
+| 6-10 | Recommendation engine through production hardening | Planned |
 
 Start with the [architecture](docs/architecture.md), [schema](docs/schema.md),
 [API contract](docs/api.md), [page map](docs/frontend.md), and
@@ -74,4 +75,9 @@ their team's requests; admins see all. Rejection/revision require reasons.
 Approved/rejected/ordered requests cannot be edited. Conditional updates prevent
 concurrent workflow overwrites. Lists have server-side search, filters and paging.
 
-Next: searchable supplier directory, admin CRUD and category configuration.
+Phase 5: searchable and category-filtered directory, supplier details, admin
+create/update/delete, category configuration and user/team/vendor assignment UI.
+Thirty seed suppliers cover five categories. Referenced suppliers/categories
+cannot be deleted; suppliers with historical orders cannot switch category.
+
+Next: explained top-three weighted supplier recommendations.

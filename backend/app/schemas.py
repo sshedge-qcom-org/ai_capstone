@@ -109,3 +109,23 @@ class RequestDetail(RequestOut):
 class Decision(Input):
     decision: Literal["approved", "rejected", "revision"]
     reason: str = Field(default="", max_length=2000)
+
+
+class SupplierInput(Input):
+    company_name: Name
+    category: str = Field(min_length=1, max_length=80)
+    rating: Decimal = Field(ge=0, le=5, decimal_places=2)
+    average_price_score: Decimal = Field(ge=0, le=100, decimal_places=2)
+    average_delivery_days: int = Field(ge=1, le=365)
+    reliability_score: Decimal = Field(ge=0, le=100, decimal_places=2)
+    contact_person: Name
+    email: EmailStr
+
+
+class SupplierOut(SupplierInput):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+
+
+class CategoryInput(Input):
+    name: str = Field(min_length=1, max_length=80)

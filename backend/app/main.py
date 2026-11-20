@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.requests import router as requests_router
+from app.api.suppliers import router as suppliers_router
 from app.config import settings
 from app.database import get_db
 
@@ -20,6 +21,7 @@ app = FastAPI(title=settings.app_name, version="1.0.0")
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(requests_router)
+app.include_router(suppliers_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
