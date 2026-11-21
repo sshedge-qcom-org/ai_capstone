@@ -4,7 +4,11 @@ from app.models import User
 def test_registration_cannot_escalate_and_normalizes_email(client):
     data = {"full_name": "New Employee", "email": "New@company.com", "password": "TestingOnly123"}
     assert client.post("/api/v1/auth/register", json={**data, "role": "admin"}).status_code == 422
-    response = client.post("/api/v1/auth/register", json=data)
+    response = client.post(
+        "/api/v1/auth/register",
+        headers={"Origin": "http://127.0.0.1:5173"},
+        json=data,
+    )
     assert response.status_code == 201
     assert response.json()["role"] == "employee"
     assert "password_hash" not in response.json()
@@ -39,6 +43,12 @@ def test_roles_and_inactive_accounts(client, headers, db):
 
 
 def test_cookie_origin_and_invalid_password(client):
+    allowed_origin = client.post(
+        "/api/v1/auth/login",
+        headers={"Origin": "http://127.0.0.1:5173"},
+        json={"email": "employee@company.com", "password": "incorrect"},
+    )
+    assert allowed_origin.status_code == 401
     assert (
         client.post(
             "/api/v1/auth/login",

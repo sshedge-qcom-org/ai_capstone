@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     jwt_secret: SecretStr = Field(min_length=32)
     access_token_minutes: int = Field(default=15, ge=1, le=60)
     refresh_token_days: int = Field(default=7, ge=1, le=30)
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     cookie_secure: bool = False
     auth_rate_limit: int = Field(default=60, ge=5, le=1000)
 
